@@ -2,7 +2,8 @@ import './index.css';
 import './css/animate.min.css';
 import './lib/ajax';
 import { NUMBER_MATRIX } from './config.js';
-import data from './data/data.json';
+import * as server from './lib/server.js';
+
 
 import {
   addQipao,
@@ -62,5 +63,15 @@ let selectedCardIndex = [],
 initAll();
 
 function initAll() {
-  console.log(data)
+  const data = server.curData.users;
+  console.log(data);
+  console.log(document.cookie);
+  basicData.users = data;
+
+  // initCards();
+  // animate();
+  // shineCard();
+
+  // document.cookie = "username=John Doe";
+  // console.log(document.cookie);
 }
