@@ -1,3 +1,5 @@
+let tempJson = {}, errorJson = [];
+
 /**
  * 洗牌算法
  * @param {*} arr
@@ -12,6 +14,18 @@ function shuffle(arr) {
   }
 }
 
+/**
+ * 讀取缓存的數據内容
+ */
+function loadTempData() {
+  let pros = [];
+  pros.push(tempJson);
+  pros.push(errorJson);
+
+  return pros;
+}
+
 module.exports = {
-  shuffle
+  shuffle,
+  loadTempData
 };
