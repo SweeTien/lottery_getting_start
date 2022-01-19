@@ -40,6 +40,7 @@
   "dependencies": {
     "@babel/runtime": "^7.16.3",
     "core-js": "^3.19.1",
+    "gsap": "^3.9.1",
     "three": "^0.136.0"
   }
 }
