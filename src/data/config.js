@@ -17,50 +17,43 @@ const prizes = [
     type: 1,
     count: 2,
     text: "特等獎",
-    title: "神秘大禮",
-    img: "../img/secrit.jpg"
+    title: "神秘大禮"
   },
   {
     type: 2,
     count: 5,
     text: "一等獎",
-    title: "Mac Pro",
-    img: "../img/mbp.jpg"
+    title: "Mac Pro"
   },
   {
     type: 3,
     count: 6,
-    text: "二等奖",
-    title: "华为 Mate30",
-    img: "../img/huawei.png"
+    text: "二等獎",
+    title: "OPPO Find9"
   },
   {
     type: 4,
     count: 7,
     text: "三等獎",
-    title: "Ipad Mini5",
-    img: "../img/ipad.jpg"
+    title: "Ipad Mini5"
   },
   {
     type: 5,
     count: 8,
     text: "四等獎",
-    title: "大疆無人機",
-    img: "../img/spark.jpg"
+    title: "無人機"
   },
   {
     type: 6,
     count: 8,
     text: "五等獎",
-    title: "Kindle",
-    img: "../img/kindle.jpg"
+    title: "Kindle"
   },
   {
     type: 7,
     count: 11,
     text: "六等獎",
-    title: "漫步者藍芽耳机",
-    img: "../img/edifier.jpg"
+    title: "藍芽耳機"
   }
 ];
 

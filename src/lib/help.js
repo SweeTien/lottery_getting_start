@@ -25,7 +25,27 @@ function loadTempData() {
   return pros;
 }
 
+/**
+ * 錯誤日誌文件輸出
+ * @param {*} data
+ */
+function saveErrorDataFile(data) {
+  errorJson = data;
+  console.log("數據寫入成功");
+}
+
+/**
+ * 寫入文件
+ * @param {*} data
+ */
+function saveDataFile(data) {
+  tempJson = data;
+  console.log("數據寫入成功");
+}
+
 module.exports = {
   shuffle,
-  loadTempData
+  loadTempData,
+  saveErrorDataFile,
+  saveDataFile
 };

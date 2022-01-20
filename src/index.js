@@ -6,7 +6,11 @@ import { NUMBER_MATRIX } from './config.js';
 import * as server from './lib/server.js';
 
 import {
-  getTempData
+  getTempData,
+  serverReset,
+  serverSaveData,
+  serverErrorData,
+  serverExport
 } from "./lib/server.js";
 
 import {
@@ -288,6 +292,7 @@ function setLotteryStatus(status = false) {
         break;
       // 抽獎
       case "lottery":
+        console.log("lottery");
         setLotteryStatus(true);
         // 每次抽獎前先保存上一次的抽獎數據
         saveData();
@@ -317,14 +322,13 @@ function setLotteryStatus(status = false) {
         break;
       // 導出抽獎结果
       case "save":
-        saveData().then(res => {
-          resetCard().then(res => {
-            // 將之前的紀錄置空
-            currentLuckys = [];
-          });
-          exportData();
-          addQipao(`數據已保存到EXCEL中。`);
+        saveData();
+        resetCard().then(res => {
+          // 將之前的紀錄置空
+          currentLuckys = [];
         });
+        exportData();
+        addQipao(`數據已保存到EXCEL中。`);
         break;
     }
   });
@@ -484,4 +488,268 @@ function shine(cardIndex, color) {
   card.innerHTML = `<div class="company">${COMPANY}</div><div class="name">${
     user[1]
   }</div><div class="details">${user[0]}<br/>${user[2] || "PSST"}</div>`;
+}
+
+function removeHighlight() {
+  document.querySelectorAll(".highlight").forEach(node => {
+    node.classList.remove("highlight");
+  });
+}
+
+function addHighlight() {
+  document.querySelectorAll(".lightitem").forEach(node => {
+    node.classList.add("highlight");
+  });
+}
+
+/**
+ * 重置抽奖牌内容
+ */
+function resetCard(duration = 500) {  //TODO fix function TWEEN
+  if (currentLuckys.length === 0) {
+    return Promise.resolve();
+  }
+
+  selectedCardIndex.forEach(index => {
+    let object = threeDCards[index],
+      target = targets.sphere[index];
+
+    new TWEEN.Tween(object.position)
+      .to(
+        {
+          x: target.position.x,
+          y: target.position.y,
+          z: target.position.z
+        },
+        Math.random() * duration + duration
+      )
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .start();
+
+    new TWEEN.Tween(object.rotation)
+      .to(
+        {
+          x: target.rotation.x,
+          y: target.rotation.y,
+          z: target.rotation.z
+        },
+        Math.random() * duration + duration
+      )
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .start();
+  });
+
+  return new Promise((resolve, reject) => {
+    new TWEEN.Tween(this)
+      .to({}, duration * 2)
+      .onUpdate(render)
+      .start()
+      .onComplete(() => {
+        selectedCardIndex.forEach(index => {
+          let object = threeDCards[index];
+          object.element.classList.remove("prize");
+        });
+        resolve();
+      });
+  });
+}
+
+function reset() {
+  serverReset();
+  console.log("重置成功");
+}
+
+/**
+ * 保存上一次的抽獎结果
+ */
+function saveData() {
+  if (!currentPrize) {
+    //若獎品抽完，則不再紀錄數據，但是還是可以進行抽獎
+    return;
+  }
+
+  let type = currentPrize.type,
+    curLucky = basicData.luckyUsers[type] || [];
+
+  curLucky = curLucky.concat(currentLuckys);
+
+  basicData.luckyUsers[type] = curLucky;
+
+  if (currentPrize.count <= curLucky.length) {
+    currentPrizeIndex--;
+    if (currentPrizeIndex <= -1) {
+      currentPrizeIndex = 0;
+    }
+    currentPrize = basicData.prizes[currentPrizeIndex];
+  }
+
+  if (currentLuckys.length > 0) {
+    // todo by xc 添加數據保存機制，以免服務器掛掉數據丢失
+    setData(type, currentLuckys);
+  }
+}
+
+function setData(type, data) {
+  serverSaveData(type, data);
+}
+
+function changePrize() {
+  let luckys = basicData.luckyUsers[currentPrize.type];
+  let luckyCount = (luckys ? luckys.length : 0) + EACH_COUNT[currentPrizeIndex];
+  // 修改左側prize的數目和百分比
+  setPrizeData(currentPrizeIndex, luckyCount);
+}
+
+function setErrorData(data) {
+  serverErrorData(data);
+}
+
+function exportData() {
+  let url = serverExport();
+  location.href = url;
+}
+
+/**
+ * 抽獎
+ */
+function lottery() {
+  rotateBall().then(() => {
+    // 將之前的紀錄置空
+    currentLuckys = [];
+    selectedCardIndex = [];
+    // 當前同時抽取的數目,當前獎品抽完還可以繼續抽，但是不紀錄數據
+    let perCount = EACH_COUNT[currentPrizeIndex],
+      luckyData = basicData.luckyUsers[currentPrize.type],
+      leftCount = basicData.leftUsers.length,
+      leftPrizeCount = currentPrize.count - (luckyData ? luckyData.length : 0);
+
+    if (leftCount === 0) {
+      addQipao("人員已抽完，現在重新設置所有人員可以進行二次抽獎！");
+      basicData.leftUsers = basicData.users;
+      leftCount = basicData.leftUsers.length;
+    }
+
+    for (let i = 0; i < perCount; i++) {
+      let luckyId = random(leftCount);
+      currentLuckys.push(basicData.leftUsers.splice(luckyId, 1)[0]);
+      leftCount--;
+      leftPrizeCount--;
+
+      let cardIndex = random(TOTAL_CARDS);
+      while (selectedCardIndex.includes(cardIndex)) {
+        cardIndex = random(TOTAL_CARDS);
+      }
+      selectedCardIndex.push(cardIndex);
+
+      if (leftPrizeCount === 0) {
+        break;
+      }
+    }
+
+    // console.log(currentLuckys);
+    selectCard();
+  });
+}
+
+function rotateBall() { //TODO fix TWEEN
+  return new Promise((resolve, reject) => {
+    scene.rotation.y = 0;
+    new TWEEN.Tween(scene.rotation)
+      .to(
+        {
+          y: Math.PI * 8
+        },
+        ROTATE_TIME
+      )
+      .onUpdate(render)
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .start()
+      .onComplete(() => {
+        resolve();
+      });
+  });
+}
+
+function selectCard(duration = 600) { //TODO fix TWEEN
+  rotate = false;
+  let width = 140,
+    tag = -(currentLuckys.length - 1) / 2,
+    locates = [];
+
+  // 計算位置信息, 大於5個分兩排顯示
+  if (currentLuckys.length > 5) {
+    let yPosition = [-87, 87],
+      l = selectedCardIndex.length,
+      mid = Math.ceil(l / 2);
+    tag = -(mid - 1) / 2;
+    for (let i = 0; i < mid; i++) {
+      locates.push({
+        x: tag * width * Resolution,
+        y: yPosition[0] * Resolution
+      });
+      tag++;
+    }
+
+    tag = -(l - mid - 1) / 2;
+    for (let i = mid; i < l; i++) {
+      locates.push({
+        x: tag * width * Resolution,
+        y: yPosition[1] * Resolution
+      });
+      tag++;
+    }
+  } else {
+    for (let i = selectedCardIndex.length; i > 0; i--) {
+      locates.push({
+        x: tag * width * Resolution,
+        y: 0 * Resolution
+      });
+      tag++;
+    }
+  }
+
+  let text = currentLuckys.map(item => item[1]);
+  addQipao(
+    `恭喜${text.join("、")}獲得${currentPrize.title}, 新的一年必定旺旺旺。`
+  );
+
+  selectedCardIndex.forEach((cardIndex, index) => {
+    changeCard(cardIndex, currentLuckys[index]);  //TODO fix this function
+    var object = threeDCards[cardIndex];
+    new TWEEN.Tween(object.position)
+      .to(
+        {
+          x: locates[index].x,
+          y: locates[index].y * Resolution,
+          z: 2200
+        },
+        Math.random() * duration + duration
+      )
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .start();
+
+    new TWEEN.Tween(object.rotation)
+      .to(
+        {
+          x: 0,
+          y: 0,
+          z: 0
+        },
+        Math.random() * duration + duration
+      )
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .start();
+
+    object.element.classList.add("prize");
+    tag++;
+  });
+
+  new TWEEN.Tween(this)
+    .to({}, duration * 2)
+    .onUpdate(render)
+    .start()
+    .onComplete(() => {
+      // 动画结束后可以操作
+      setLotteryStatus();
+    });
 }
