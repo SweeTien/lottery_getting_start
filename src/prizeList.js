@@ -158,7 +158,7 @@ function showPrizeList(currentPrizeIndex) {
   if (currentPrize.type === defaultType) {
     currentPrize.count === "不限制";
   }
-  let htmlCode = `<div class="prize-mess">正在抽取<label id="prizeType" class="prize-shine">${currentPrize.text}</label><label id="prizeText" class="prize-shine">${currentPrize.title}</label>，剩余<label id="prizeLeft" class="prize-shine">${currentPrize.count}</label>个</div><ul class="prize-list">`;
+  let htmlCode = `<div class="prize-mess">正在抽取<label id="prizeType" class="prize-shine">${currentPrize.text}</label><label id="prizeText" class="prize-shine">${currentPrize.title}</label>，剩餘<label id="prizeLeft" class="prize-shine">${currentPrize.count}</label>个個/div><ul class="prize-list">`;
   prizes.forEach(item => {
     if (item.type === defaultType) {
       return true;
@@ -166,29 +166,29 @@ function showPrizeList(currentPrizeIndex) {
     htmlCode += `<li id="prize-item-${item.type}" class="prize-item ${
       item.type == currentPrize.type ? "shine" : ""
     }">
-                        <span></span><span></span><span></span><span></span>
-                        <div class="prize-img">
-                            <img src="${item.img}" alt="${item.title}">
-                        </div>
-                        <div class="prize-text">
-                            <h5 class="prize-title">${item.text} ${
+      <span></span><span></span><span></span><span></span>
+      <div class="prize-img">
+          <img src="${item.img}" alt="${item.title}">
+      </div>
+      <div class="prize-text">
+          <h5 class="prize-title">${item.text} ${
       item.title
     }</h5>
-                            <div class="prize-count">
-                                <div class="progress">
-                                    <div id="prize-bar-${
-                                      item.type
-                                    }" class="progress-bar progress-bar-danger progress-bar-striped active" style="width: 100%;">
-                                    </div>
-                                </div>
-                                <div id="prize-count-${
-                                  item.type
-                                }" class="prize-count-left">
-                                    ${item.count + "/" + item.count}
-                                </div>
-                            </div>
-                        </div>
-                    </li>`;
+          <div class="prize-count">
+              <div class="progress">
+                  <div id="prize-bar-${
+                    item.type
+                  }" class="progress-bar progress-bar-danger progress-bar-striped active" style="width: 100%;">
+                  </div>
+              </div>
+              <div id="prize-count-${
+                item.type
+              }" class="prize-count-left">
+                  ${item.count + "/" + item.count}
+              </div>
+          </div>
+      </div>
+  </li>`;
   });
   htmlCode += `</ul>`;
 
@@ -247,7 +247,7 @@ let setPrizeData = (function () {
     }
 
     if (currentPrizeIndex === 0) {
-      prizeElement.prizeType.textContent = "特别奖";
+      prizeElement.prizeType.textContent = "特别獎";
       prizeElement.prizeText.textContent = " ";
       prizeElement.prizeLeft.textContent = "不限制";
       return;
