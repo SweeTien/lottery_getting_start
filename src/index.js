@@ -230,7 +230,7 @@ function animate() {
   // rotate && (scene.rotation.y += 0.088);
 
   requestAnimationFrame(animate);
-  // TWEEN.update(); /// TO DO
+  // gsap.play(); /// TO DO
   controls.update();
 
   // 渲染循環
@@ -348,12 +348,12 @@ function switchScreen(type) {
     case "enter":
       btns.enter.classList.remove("none");
       btns.lotteryBar.classList.add("none");
-      transform(targets.table, 2000);
+      transform(targets.table, 2);
       break;
     default:
       btns.enter.classList.add("none");
       btns.lotteryBar.classList.remove("none");
-      transform(targets.sphere, 2000);
+      transform(targets.sphere, 2);
       break;
   }
 }
@@ -372,7 +372,7 @@ function switchScreen(type) {
         y: target.position.y, 
         z: target.position.z,
         duration: Math.random() * duration + duration,
-        ease: "expo.inOut",
+        ease: "expo.inOut"
       }
     );
 
@@ -457,7 +457,7 @@ function render() {
         continue;
       }
       shine(cardIndex);
-      // changeCard(cardIndex, basicData.leftUsers[index]); /// TO DO
+      changeCard(cardIndex, basicData.leftUsers[index]);
     }
   }, 500);
 }
@@ -505,7 +505,7 @@ function addHighlight() {
 /**
  * 重置抽奖牌内容
  */
-function resetCard(duration = 500) {  //TODO fix function TWEEN
+function resetCard(duration = 500) {
   if (currentLuckys.length === 0) {
     return Promise.resolve();
   }
@@ -514,43 +514,41 @@ function resetCard(duration = 500) {  //TODO fix function TWEEN
     let object = threeDCards[index],
       target = targets.sphere[index];
 
-    new TWEEN.Tween(object.position)
-      .to(
-        {
-          x: target.position.x,
-          y: target.position.y,
-          z: target.position.z
-        },
-        Math.random() * duration + duration
-      )
-      .easing(TWEEN.Easing.Exponential.InOut)
-      .start();
+    gsap.to(object.position, 
+      { 
+        x: target.position.x, 
+        y: target.position.y, 
+        z: target.position.z,
+        duration: Math.random() * duration + duration,
+        ease: "expo.inOut",
+      }
+    );
 
-    new TWEEN.Tween(object.rotation)
-      .to(
-        {
-          x: target.rotation.x,
-          y: target.rotation.y,
-          z: target.rotation.z
-        },
-        Math.random() * duration + duration
-      )
-      .easing(TWEEN.Easing.Exponential.InOut)
-      .start();
+    gsap.to(object.rotation, 
+      { 
+        x: target.rotation.x, 
+        y: target.rotation.y, 
+        z: target.rotation.z,
+        duration: Math.random() * duration + duration,
+        ease: "expo.inOut",
+      }
+    );
   });
 
-  return new Promise((resolve, reject) => {
-    new TWEEN.Tween(this)
-      .to({}, duration * 2)
-      .onUpdate(render)
-      .start()
-      .onComplete(() => {
-        selectedCardIndex.forEach(index => {
-          let object = threeDCards[index];
-          object.element.classList.remove("prize");
-        });
-        resolve();
-      });
+  return new Promise((resolve) => {
+    gsap.to(this, 
+      { 
+        duration: duration * 2,
+        onUpdate: render,
+        onComplete: () => {
+          selectedCardIndex.forEach(index => {
+            let object = threeDCards[index];
+            object.element.classList.remove("prize");
+          });
+          resolve();
+        }
+      }
+    );
   });
 }
 
@@ -651,26 +649,22 @@ function lottery() {
   });
 }
 
-function rotateBall() { //TODO fix TWEEN
-  return new Promise((resolve, reject) => {
+function rotateBall() {
+  return new Promise((resolve) => {
     scene.rotation.y = 0;
-    new TWEEN.Tween(scene.rotation)
-      .to(
-        {
-          y: Math.PI * 8
-        },
-        ROTATE_TIME
-      )
-      .onUpdate(render)
-      .easing(TWEEN.Easing.Exponential.InOut)
-      .start()
-      .onComplete(() => {
-        resolve();
-      });
+    gsap.to(scene.rotation, 
+      { 
+        y: Math.PI * 8,
+        duration: ROTATE_TIME,
+        ease: "expo.inOut",
+        onUpdate: render,
+        onComplete: resolve,
+      }
+    );
   });
 }
 
-function selectCard(duration = 600) { //TODO fix TWEEN
+function selectCard(duration = 600) {
   rotate = false;
   let width = 140,
     tag = -(currentLuckys.length - 1) / 2,
@@ -716,40 +710,41 @@ function selectCard(duration = 600) { //TODO fix TWEEN
   selectedCardIndex.forEach((cardIndex, index) => {
     changeCard(cardIndex, currentLuckys[index]);  //TODO fix this function
     var object = threeDCards[cardIndex];
-    new TWEEN.Tween(object.position)
-      .to(
-        {
-          x: locates[index].x,
-          y: locates[index].y * Resolution,
-          z: 2200
-        },
-        Math.random() * duration + duration
-      )
-      .easing(TWEEN.Easing.Exponential.InOut)
-      .start();
 
-    new TWEEN.Tween(object.rotation)
-      .to(
-        {
-          x: 0,
-          y: 0,
-          z: 0
-        },
-        Math.random() * duration + duration
-      )
-      .easing(TWEEN.Easing.Exponential.InOut)
-      .start();
+    gsap.to(object.position, 
+      { 
+        x: locates[index].x,
+        y: locates[index].y * Resolution,
+        z: 2200,
+        duration: Math.random() * duration + duration,
+        ease: "expo.inOut",
+      }
+    );
+
+    gsap.to(object.rotation, 
+      { 
+        x: 0,
+        y: 0,
+        z: 0,
+        duration: Math.random() * duration + duration,
+        ease: "expo.inOut",
+      }
+    );
 
     object.element.classList.add("prize");
     tag++;
   });
 
-  new TWEEN.Tween(this)
-    .to({}, duration * 2)
-    .onUpdate(render)
-    .start()
-    .onComplete(() => {
-      // 动画结束后可以操作
-      setLotteryStatus();
-    });
+  gsap.to(this, 
+    { 
+      duration: duration * 2,
+      onUpdate: render,
+      onComplete: () => {
+        // 动画结束后可以操作
+        setLotteryStatus();
+      },
+    }
+  );
 }
+
+
