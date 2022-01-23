@@ -299,6 +299,7 @@ function setLotteryStatus(status = false) {
         //更新剩餘抽獎數目的數據顯示
         changePrize();
         resetCard().then(res => {
+          console.log("重整排完成")
           // 抽獎
           lottery();
         });
@@ -503,9 +504,9 @@ function addHighlight() {
 }
 
 /**
- * 重置抽奖牌内容
+ * 重置抽獎牌内容
  */
-function resetCard(duration = 500) {
+function resetCard(duration = 1) {
   if (currentLuckys.length === 0) {
     return Promise.resolve();
   }
@@ -611,42 +612,63 @@ function exportData() {
  * 抽獎
  */
 function lottery() {
-  rotateBall().then(() => {
-    // 將之前的紀錄置空
-    currentLuckys = [];
-    selectedCardIndex = [];
-    // 當前同時抽取的數目,當前獎品抽完還可以繼續抽，但是不紀錄數據
-    let perCount = EACH_COUNT[currentPrizeIndex],
-      luckyData = basicData.luckyUsers[currentPrize.type],
-      leftCount = basicData.leftUsers.length,
-      leftPrizeCount = currentPrize.count - (luckyData ? luckyData.length : 0);
+  rotateBall();
+  console.log("開始抽獎")
+  // 將之前的紀錄置空
+  currentLuckys = [];
+  selectedCardIndex = [];
+  // 當前同時抽取的數目,當前獎品抽完還可以繼續抽，但是不紀錄數據
+  let perCount = EACH_COUNT[currentPrizeIndex],
+    luckyData = basicData.luckyUsers[currentPrize.type],
+    leftCount = basicData.leftUsers.length,
+    leftPrizeCount = currentPrize.count - (luckyData ? luckyData.length : 0);
+  if (leftCount === 0) {
+    addQipao("人員已抽完，現在重新設置所有人員可以進行二次抽獎！");
+    basicData.leftUsers = basicData.users;
+    leftCount = basicData.leftUsers.length;
+  }
 
-    if (leftCount === 0) {
-      addQipao("人員已抽完，現在重新設置所有人員可以進行二次抽獎！");
-      basicData.leftUsers = basicData.users;
-      leftCount = basicData.leftUsers.length;
-    }
-
-    for (let i = 0; i < perCount; i++) {
-      let luckyId = random(leftCount);
-      currentLuckys.push(basicData.leftUsers.splice(luckyId, 1)[0]);
+  for (let i = 0; i < perCount; i++) {
+    let luckyId = random(leftCount),
+        luckyInfo = basicData.leftUsers.splice(luckyId, 1)[0],
+        duplicateIndex = checkDuplicateUser(luckyInfo);
+    
+    console.log(duplicateIndex);
+    if (duplicateIndex !== -1) {
+      let duplicateInfo = basicData.leftUsers.splice(duplicateIndex, 1)[0];
+      console.log("remove duplicate user: "+duplicateInfo);
       leftCount--;
-      leftPrizeCount--;
-
-      let cardIndex = random(TOTAL_CARDS);
-      while (selectedCardIndex.includes(cardIndex)) {
-        cardIndex = random(TOTAL_CARDS);
-      }
-      selectedCardIndex.push(cardIndex);
-
-      if (leftPrizeCount === 0) {
-        break;
-      }
     }
 
-    // console.log(currentLuckys);
-    selectCard();
-  });
+    currentLuckys.push(luckyInfo);
+    leftCount--;
+    leftPrizeCount--;
+    console.log("winner: "+ luckyInfo);
+
+    let cardIndex = random(TOTAL_CARDS);
+    while (selectedCardIndex.includes(cardIndex)) {
+      cardIndex = random(TOTAL_CARDS);
+    }
+    selectedCardIndex.push(cardIndex);
+
+    if (leftPrizeCount === 0) {
+      break;
+    }
+  }
+  console.log(currentLuckys);
+  selectCard();
+}
+
+function checkDuplicateUser(luckyInfo) {
+  let index = -1;
+  for (const item of basicData.leftUsers) { //[id,name,dep]
+    index++;
+    if (luckyInfo[0] === item[0]) {
+      console.log(index);
+      return index;
+    }
+  };
+  return -1;
 }
 
 function rotateBall() {
@@ -661,10 +683,11 @@ function rotateBall() {
         onComplete: resolve,
       }
     );
+    console.log("rotation done")
   });
 }
 
-function selectCard(duration = 600) {
+function selectCard(duration = 3) {
   rotate = false;
   let width = 140,
     tag = -(currentLuckys.length - 1) / 2,

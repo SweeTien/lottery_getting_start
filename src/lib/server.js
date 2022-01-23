@@ -5,7 +5,8 @@ const {
   shuffle,
   loadTempData,
   saveErrorDataFile,
-  saveDataFile
+  saveDataFile,
+  writeXML
 } = require("./help");
 
 let curData = {},
@@ -33,7 +34,9 @@ function loadData() {
 
 export function getTempData() {
   getLeftUsers();
-  return {"cfgData": cfg, "leftUsers": curData.leftUsers, "luckyData": luckyData};
+  return {"cfgData": JSON.parse(JSON.stringify(cfg)),
+          "leftUsers": JSON.parse(JSON.stringify(curData.leftUsers)),
+          "luckyData": JSON.parse(JSON.stringify(luckyData))};
 }
 
 function getLeftUsers() {
@@ -94,15 +97,25 @@ function setErrorData(data) {
 // 保存數據到excel中去
 export function serverExport() {
   let type = [1, 2, 3, 4, 5, defaultType],
-      outData = [["工号", "姓名", "部门"]];
+      outData = [["\n"],["工號", "姓名", "部門\n"]];
   cfg.prizes.forEach(item => {
-    outData.push([item.text]);
-    outData = outData.concat(luckyData[item.type] || []);
+    let thisPrizeLucky = [];
+    outData.push([item.text,item.title]+"\n");
+
+    if (luckyData[item.type] !== undefined) {
+      luckyData[item.type].forEach(item => {
+        thisPrizeLucky.push(item+"\n");
+      });
+    }
+    
+    outData = outData.concat(thisPrizeLucky);
   });
-  
+  console.log(outData);
   let url = "抽獎结果.xlsx"
-  //writeXML(outData, "/"+url); //TODO
-  log(`導出數據成功！`);
+
+  var blobData = new Blob([outData], { type: 'application/vnd.ms-excel' });
+  url = (window.URL ? URL : webkitURL).createObjectURL(blobData);
+  log(`導出數據成功！:`+url);
   return url;
 }
 

@@ -54,13 +54,57 @@ const prizes = [
     count: 11,
     text: "六等獎",
     title: "藍芽耳機"
+  },
+  {
+    type: 8,
+    count: 11,
+    text: "六等獎",
+    title: "藍芽耳機"
+  },
+  {
+    type: 9,
+    count: 11,
+    text: "六等獎",
+    title: "藍芽耳機"
+  },
+  {
+    type: 10,
+    count: 11,
+    text: "六等獎",
+    title: "藍芽耳機"
+  },{
+    type: 11,
+    count: 11,
+    text: "六等獎",
+    title: "藍芽耳機"
+  },{
+    type: 12,
+    count: 11,
+    text: "六等獎",
+    title: "藍芽耳機"
+  },{
+    type: 13,
+    count: 11,
+    text: "六等獎",
+    title: "藍芽耳機"
+  },{
+    type: 14,
+    count: 11,
+    text: "六等獎",
+    title: "藍芽耳機"
+  },{
+    type: 15,
+    count: 11,
+    text: "六等獎",
+    title: "藍芽耳機"
   }
+
 ];
 
 /**
  * 一次抽取的獎品個數與prizes對應
  */
-const EACH_COUNT = [1, 1, 5, 6, 7, 8, 9, 10];
+const EACH_COUNT = [10, 1, 5, 6, 7, 8, 9, 10,1,2,11,12,13,14,15,16];
 
 /**
  * 卡片公司名名稱標示
