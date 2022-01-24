@@ -163,17 +163,18 @@ function showPrizeList(currentPrizeIndex) {
     if (item.type === defaultType) {
       return true;
     }
+    // ${item.title}
+    // <div class="prize-img">
+    //   <img src="${item.img}" alt="${item.title}">
+    // </div>
+    
     htmlCode += `<li id="prize-item-${item.type}" class="prize-item ${
       item.type == currentPrize.type ? "shine" : ""
     }">
       <span></span><span></span><span></span><span></span>
-      <div class="prize-img">
-          <img src="${item.img}" alt="${item.title}">
-      </div>
+      
       <div class="prize-text">
-          <h5 class="prize-title">${item.text} ${
-      item.title
-    }</h5>
+          <h5 class="prize-title">${item.text}</h5>
           <div class="prize-count">
               <div class="progress">
                   <div id="prize-bar-${

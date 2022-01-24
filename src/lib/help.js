@@ -19,8 +19,10 @@ function shuffle(arr) {
  */
 function loadTempData() {
   let pros = [];
-  pros.push(tempJson);
-  pros.push(errorJson);
+  const data1 = JSON.parse(JSON.stringify(tempJson)),
+        data2 = JSON.parse(JSON.stringify(errorJson));
+  pros.push(data1);
+  pros.push(data2);
 
   return pros;
 }
@@ -42,6 +44,7 @@ function saveDataFile(data) {
   tempJson = data;
   console.log("數據寫入成功");
 }
+
 
 module.exports = {
   shuffle,

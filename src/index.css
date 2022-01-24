@@ -197,7 +197,7 @@ button:active {
   border: 1px solid rgba(127, 255, 255, 0.25);
   color: rgba(127, 255, 255, 0.75);
   width: 30vh;
-  height: 10vh;
+  height: 4.5vh;
   box-sizing: border-box;
   transition: transform 1s ease-in;
 }
@@ -231,14 +231,14 @@ button:active {
 }
 
 .prize-count {
-  padding: 4px 0;
+  padding: 0px 0;
   position: relative;
 }
 
 .prize-count .progress {
   height: 1.8vh;
   background: rgba(0, 0, 0, 0.5);
-  padding: 1px;
+  padding: 0px;
   overflow: visible;
   border-radius: 1vh;
 }
